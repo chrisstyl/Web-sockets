@@ -9,6 +9,13 @@ def send_file(socket, filename):
 			socket.send(file_bytes)
 			file_bytes = file.read(4096)
 
+def recv_file(socket, filename):
+	with open(filename, mode='wb') as file:
+		data = socket.recv(4096)
+		while data:
+			file.write(data)
+			data = socket.recv(4096)
+
 def socket_to_screen(socket, sock_addr):
 	"""Reads data from a passed socket and prints it on screen.
 
