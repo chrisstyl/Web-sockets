@@ -1,6 +1,14 @@
 import sys
 import socket
 
+def send_file(socket, filename):
+	with open(filename, mode="rb") as file:
+		# file.read returns bytes read so sto
+		file_bytes = file.read(4096)
+		while file_bytes:
+			socket.send(file_bytes)
+			file_bytes = file.read(4096)
+
 def socket_to_screen(socket, sock_addr):
 	"""Reads data from a passed socket and prints it on screen.
 
