@@ -1,6 +1,6 @@
 import socket
 import sys
-from lab3 import socket_to_screen, keyboard_to_socket
+from lab3 import socket_to_screen, keyboard_to_socket, recv_file, send_file, get_header
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,20 +60,40 @@ while True:
 		cli_addr_str = str(cli_addr) # Translate the client address to a string (to be used shortly)
 
 		print("Client " + cli_addr_str + " connected. Now chatting...")
-
+		filename = ''
+		is_header =True
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
 			# First, read data from client and print on screen
-			bytes_read = socket_to_screen(cli_sock, cli_addr_str)
-			if bytes_read == 0:
-				print("Client closed connection.")
-				break
+			# bytes_read = socket_to_screen(cli_sock, cli_addr_str)
+			# if bytes_read == 0:
+			# 	print("Client closed connection.")
+			# 	break
+			#TODO If  header
+
+			if is_header:
+				header = get_header(cli_sock, cli_addr)
+				if header == 0:
+					print("Client closed connection.")
+					break
+				else:
+					dataname, file_size = header.split(';')
+			# Else receive data
+			recv_file(cli_sock, dataname)
+			# Check if receive file size == expected size else error
 
 			# Then, read data from user and send to client
 			bytes_sent = keyboard_to_socket(cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")
 				break
+			else:
+				# put
+				# file_size = get_file_size()
+				filename = 
+				header = f'{filename};{file_size}'
+				socket.send(header.encode())
+				send_file(cli_sock, filename)
 
 	finally:
 		"""

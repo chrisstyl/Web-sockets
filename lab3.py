@@ -3,7 +3,6 @@ import socket
 
 def send_file(socket, filename):
 	with open(filename, mode="rb") as file:
-		# file.read returns bytes read so sto
 		file_bytes = file.read(4096)
 		while file_bytes:
 			socket.send(file_bytes)
@@ -16,6 +15,34 @@ def recv_file(socket, filename):
 			file.write(data)
 			data = socket.recv(4096)
 
+def get_header(socket, sock_addr):
+	"""Reads data from a passed socket and prints it on screen.
+
+	Returns either when a newline character is found in the stream or the connection is closed.
+        The return value is the total number of bytes received through the socket.
+	The second argument is prepended to the printed data to indicate the sender.
+	"""
+	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
+
+	data = bytearray(1)
+
+	"""
+	 Loop for as long as data is received (0-length data means the connection was closed by
+	 the client), and newline is not in the data (newline means the complete input from the
+	 other side was processed, as the assumption is that the client will send one line at
+	 a time).
+	"""
+	data = socket.recv(4096)
+	if len(data) > 0 and "\n" not in data.decode():
+		"""
+		 Read up to 4096 bytes at a time; remember, TCP will return as much as there is
+		 available to be delivered to the application, up to the user-defined maximum,
+		 so it could as well be only a handful of bytes. This is the reason why we do
+		 this in a loop; there is no guarantee that the line sent by the other side
+		 will be delivered in one recv() call.
+		"""
+		return data
+	else return 0
 def socket_to_screen(socket, sock_addr):
 	"""Reads data from a passed socket and prints it on screen.
 

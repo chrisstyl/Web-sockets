@@ -1,6 +1,6 @@
 import socket
 import sys
-from lab3 import socket_to_screen, keyboard_to_socket
+from lab3 import socket_to_screen, keyboard_to_socket, send_file, recv_file
 
 # Create the socket with which we will connect to the server
 cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,6 +51,19 @@ try:
 		if bytes_sent == 0:
 			print("User-requested exit.")
 			break
+		else:
+			command = sys.argv[3]
+			if command == 'put':
+				# Upload file to server
+				filename = sys.argv[4]
+				send_file(cli_sock, filename)
+			elif command == 'get':
+				# Get file from server
+				filename = sys.argv[4]
+				recv_file(cli_sock, filename)
+			else:
+				# TODO: Throw error
+				pass
 
 		# Then, read data from server and print on screen
 		bytes_read = socket_to_screen(cli_sock, srv_addr_str)
