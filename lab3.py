@@ -1,5 +1,6 @@
 import sys
 import socket
+import os
 
 def open_file(filename)
 	with open(filename, mode="rb") as file:
@@ -127,15 +128,15 @@ def put_send(socket,filename):
 	header="put"+"\0"+"filename"+"\0"+"file_size" #+"\0"
 	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(header_size))
-	print()
+	print("Errors while sending header:",socket.sendall(header))
 	print("Errors while sending file:",socket.sendall(file))
 
 def recv_start(socket):
 	commandsdict={"put":recv_put),
 			"get":send_get,
-			"list":recv_list}
+			"list":send_listing}
 	header_size=recv_header_size()
-	header=recv(header_size)
+	header=recv(header_size).decode()
 	header=header.split("\0")
 	if header[0] in commandsdict:
 		return commandsdict[header[0]](header[1],header[2],socket)
@@ -150,23 +151,39 @@ def recv_put(filename,file_size,socket):
 
 def send_get(filename,file_size,socket):
 	file,file_size=open_file(filename)
-	header="put"+"\0"+"filename"+"\0"+"file_size" #+"\0"
-	header_size=get_header_size(header)
-	print("Errors while sending header size:",send_header_size(header_size))
-	print("Errors while sending file:",cli_sock.sendall(file))
+	header=bytes(file_size)
+	print("Errors while sending file:",socket.sendall(header))
+	print("Errors while sending file:",socket.sendall(file))
+
+def recv_get(filename,socket):
+	file_size=int(recv(24),2)
+	file=recv_all(socket,file_size)
+	if existingfile(filename)==False:
+		with open(filename,mode="xb") as f:
+			f.write(file)
+			print(f"{filename} has been downloaded(filesize={file_size}")
 
 
 
-		
+def send_listing(filename,file_size,socket):
+	listing=os.listdir(os.path.abspath(server.py))
+	listing_bin=listing.encode('utf-8')
+	listing_size=len(listing_bin)
+	socket.sendall(bytes(listing_size))
+	return socket.sendall(listing_bin)
+def recv_listing(socket):
+	listing_size=recv(24)
+	listing=recv_all(int(listing_size,2)).decode("utf-8")
+	return f"Server's listings are the following: \n {listing}"
 
 
 
-def recv_file(socket, filename):
-	with open(filename, mode='xb') as file:
-		data = socket.recv(4096)
-		while data:
-			file.write(data)
-			data = socket.recv(4096)
+# def recv_file(socket, filename):
+# 	with open(filename, mode='xb') as file:
+# 		data = socket.recv(4096)
+# 		while data:
+# 			file.write(data)
+# 			data = socket.recv(4096)
 
 
 	
