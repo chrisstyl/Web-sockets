@@ -61,7 +61,8 @@ while True:
 
 		print("Client " + cli_addr_str + " connected. Now chatting...")
 		filename = ''
-		is_header =True
+		is_header =False
+		is_header_size=True
 		# Loop until either the client closes the connection or the user requests termination
 		while True:
 			# First, read data from client and print on screen
@@ -71,13 +72,13 @@ while True:
 			# 	break
 			#TODO If  header
 
-			if is_header:
+			if is_header_size:
 				header = get_header(cli_sock, cli_addr)
 				if header == 0:
 					print("Client closed connection.")
 					break
 				else:
-					dataname, file_size = header.split(';')
+					request,dataname, file_size = header.split('\0')
 			# Else receive data
 			recv_file(cli_sock, dataname)
 			# Check if receive file size == expected size else error

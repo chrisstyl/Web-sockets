@@ -52,18 +52,26 @@ try:
 			print("User-requested exit.")
 			break
 		else:
-			command = sys.argv[3]
-			if command == 'put':
-				# Upload file to server
-				filename = sys.argv[4]
-				send_file(cli_sock, filename)
-			elif command == 'get':
-				# Get file from server
-				filename = sys.argv[4]
-				recv_file(cli_sock, filename)
-			else:
-				# TODO: Throw error
-				pass
+			try:
+				command = sys.argv[3]
+				if command == 'put':
+					# Upload file to server
+					filename = sys.argv[4]
+					file_size
+					send_file(cli_sock, filename)
+					
+				elif command == 'get':
+					# Get file from server
+					filename = sys.argv[4]
+					recv_file(cli_sock, filename)
+				elif command=='list':
+					#TODO list
+				else:
+					
+					# TODO: Throw error
+					pass
+			except (len(sys.argv) not in [3,4]:
+
 
 		# Then, read data from server and print on screen
 		bytes_read = socket_to_screen(cli_sock, srv_addr_str)
@@ -80,3 +88,5 @@ finally:
 
 # Exit with a zero value, to indicate success
 exit(0)
+
+

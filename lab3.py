@@ -90,7 +90,7 @@ def keyboard_to_socket(socket):
 	return bytes_sent
 
 
-def recv_all(size):
+def recv_all(socket,size):
 	msg=0
 	while 0<size:
 		if size>4096:
@@ -104,8 +104,8 @@ def recv_all(size):
 def get_header_size(header):
 	header_size=len(bytes(header))
 	return header_size
-def send_header_size(cli_sock,header_size):
-	return cli_sock.sendall(header_size)
+def send_header_size(socket,header_size):
+	return socket.sendall(bytes(header_size)
 
 def recv_header_size():
 	header_size=int(recv(24),2)
@@ -122,26 +122,43 @@ def existingfile(filename):
 		print('File does not exist')
 		return False
 	return FileExistsError("Cannot create file as file already exists")
-def put_send(cli_sock,filename):
+def put_send(socket,filename):
+	file,file_size=open_file(filename)
+	header="put"+"\0"+"filename"+"\0"+"file_size" #+"\0"
+	header_size=get_header_size(header)
+	print("Errors while sending header size:",send_header_size(header_size))
+	print()
+	print("Errors while sending file:",socket.sendall(file))
+
+def recv_start(socket):
+	commandsdict={"put":recv_put),
+			"get":send_get,
+			"list":recv_list}
+	header_size=recv_header_size()
+	header=recv(header_size)
+	header=header.split("\0")
+	if header[0] in commandsdict:
+		return commandsdict[header[0]](header[1],header[2],socket)
+	else return SyntaxError("No such command found")
+
+def recv_put(filename,file_size,socket):
+	file=recv_all(socket,file_size)
+	if existingfile(filename)==False:
+		with open(filename,mode="xb") as f:
+			f.write(file)
+			print(f"{filename} has been uploaded(filesize={file_size}")
+
+def send_get(filename,file_size,socket):
 	file,file_size=open_file(filename)
 	header="put"+"\0"+"filename"+"\0"+"file_size" #+"\0"
 	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(header_size))
 	print("Errors while sending file:",cli_sock.sendall(file))
 
-def recv_start(cli_sock):
-	commandsdict={"put":recv_put(),
-			"get":recv_get(),
-			"list":recv_list()}
-	header_size=recv_header_size()
-	header=recv(header_size)
-	header=header.split("\0")
-	if header[0] in commandsdict:
-		commandsdict[header[0]]
-	else raise SyntaxError("No such command found")
-	
-	filename=header
-	with open(filename,mode="xb") as f:
+
+
+		
+
 
 
 def recv_file(socket, filename):
