@@ -1,6 +1,12 @@
 import socket
 import sys
-from lab3 import socket_to_screen, keyboard_to_socket, recv_file, send_file, get_header
+def send_get(filename,file_size,socket):
+from lab3 import( socket_to_screen,keyboard_to_socket,
+ recv_all,existingfile,
+ recv_header_size,get_header_size,
+ send_header_size,open_file,recv_header_size
+ ,send_listing,recv_put,send_get,
+ recv_start,existingfile)
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
