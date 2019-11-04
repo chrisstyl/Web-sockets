@@ -54,23 +54,27 @@ try:
 		else:
 			try:
 				command = sys.argv[3]
-				if command == 'put':
-					# Upload file to server
-					filename = sys.argv[4]
-					file_size
-					send_file(cli_sock, filename)
-					
-				elif command == 'get':
-					# Get file from server
-					filename = sys.argv[4]
-					recv_file(cli_sock, filename)
+				if len(sys.argv[4])!=0:
+					if command == 'put':
+						# Upload file to server
+						filename = sys.argv[4]
+						put_send(filename,cli_sock)
+						
+					elif command == 'get':
+						# Get file from server
+						filename = sys.argv[4]
+						recv_get(filename,cli_sock)
+
 				elif command=='list':
-					#TODO list
+					try :
+						recv_listing(socket)
+						 
+					except Exception as e:
+						print(f"Cannot send listing due to {e} ")
 				else:
-					
-					# TODO: Throw error
-					pass
-			except (len(sys.argv) not in [3,4]:
+					raise ValueError("No such command found")
+			except (len(sys.argv) not in [3,4]):
+				raise TypeError("This program either takes 4 or 5 arguments depending on the function needed,please input valid arguments")
 
 
 		# Then, read data from server and print on screen
