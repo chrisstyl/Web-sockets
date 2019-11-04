@@ -41,38 +41,38 @@ def send_file(socket, filename):
 # 		"""
 # 		return data
 # 	else: return 0
-# # def socket_to_screen(socket, sock_addr):
-# # #
-# # 	# Reads data from a passed socket and prints it on screen.
+def socket_to_screen(socket, sock_addr):
+#
+	# Reads data from a passed socket and prints it on screen.
 
-# # 	# Returns either when a newline character is found in the stream or the connection is closed.
-# #     #     The return value is the total number of bytes received through the socket.
-# # 	# The second argument is prepended to the printed data to indicate the sender.
-# # 	# """
-# # 	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
+	# Returns either when a newline character is found in the stream or the connection is closed.
+    #     The return value is the total number of bytes received through the socket.
+	# The second argument is prepended to the printed data to indicate the sender.
+	# """
+	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
 
-# 	data = bytearray(1)
-# 	bytes_read = 0
+	data = bytearray(1)
+	bytes_read = 0
 
-# 	"""
-# 	 Loop for as long as data is received (0-length data means the connection was closed by
-# 	 the client), and newline is not in the data (newline means the complete input from the
-# 	 other side was processed, as the assumption is that the client will send one line at
-# 	 a time).
-# 	"""
-# 	while len(data) > 0 and "\n" not in data.decode():
-# 		"""
-# 		 Read up to 4096 bytes at a time; remember, TCP will return as much as there is
-# 		 available to be delivered to the application, up to the user-defined maximum,
-# 		 so it could as well be only a handful of bytes. This is the reason why we do
-# 		 this in a loop; there is no guarantee that the line sent by the other side
-# 		 will be delivered in one recv() call.
-# 		"""
-# 		data = socket.recv(4096)
+	"""
+	 Loop for as long as data is received (0-length data means the connection was closed by
+	 the client), and newline is not in the data (newline means the complete input from the
+	 other side was processed, as the assumption is that the client will send one line at
+	 a time).
+	"""
+	while len(data) > 0 and "\n" not in data.decode():
+		"""
+		 Read up to 4096 bytes at a time; remember, TCP will return as much as there is
+		 available to be delivered to the application, up to the user-defined maximum,
+		 so it could as well be only a handful of bytes. This is the reason why we do
+		 this in a loop; there is no guarantee that the line sent by the other side
+		 will be delivered in one recv() call.
+		"""
+		data = socket.recv(4096)
 
-# 		print(data.decode(), end="") # Use end="" to avoid adding a newline per print() call
-# 		bytes_read += len(data)
-# 	return bytes_read
+		print(data.decode(), end="") # Use end="" to avoid adding a newline per print() call
+		bytes_read += len(data)
+	return bytes_read
 
 def keyboard_to_socket(socket):
 	"""Reads data from keyboard and sends it to the passed socket.
@@ -137,9 +137,16 @@ def recv_start(socket):
 			"get":send_get,
 			"list":send_listing}
 	header_size=recv_header_size(socket)
+	print("Reciever header's size")
 	header=socket.recv(header_size).decode("utf-8")
+	print("Recieved header")
+	if header=="EXIT\n":
+		print("User requested Exit")
+		IsExit=True
+		return IsExit
 	header=header.split("\0")
 	if header[0] in commandsdict:
+		print(f"{header[0]} command was requested")
 		return commandsdict[header[0]](header[1],header[2],socket)
 	else: return SyntaxError("No such command found")
 
@@ -148,7 +155,7 @@ def recv_put(filename,file_size,socket):
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
 			f.write(file)
-			print(f"{filename} has been uploaded(filesize={file_size}")
+			print(f"{filename} has been uploaded(filesize={file_size})")
 
 def send_get(filename,file_size,socket):
 	file,file_size=open_file(filename)
@@ -176,15 +183,6 @@ def recv_listing(socket):
 	listing_size=socket.recv(24)
 	listing=recv_all(socket,int(listing_size,2)).decode("utf-8")
 	return f"Server's listings are the following: \n {listing}"
-
-
-
-# def recv_file(socket, filename):
-# 	with open(filename, mode='xb') as file:
-# 		data = socket.recv(4096)
-# 		while data:
-# 			file.write(data)
-# 			data = socket.recv(4096)
 
 
 	

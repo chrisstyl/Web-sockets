@@ -79,7 +79,7 @@ try:
 
 
 		# Then, read data from server and print on screen
-		bytes_read = socket_to_screen(cli_sock, srv_addr_str)
+		bytes_read = cli_sock.recv(4096)
 		if bytes_read == 0:
 			print("Server closed connection.")
 			break
