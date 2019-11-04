@@ -5,7 +5,7 @@ import os
 def open_file(filename):
 	with open(filename, mode="rb") as file:
 		file_bytes = file.read()
-		file_size=len(file)
+		file_size=os.stat(filename).st_size
 		return file_bytes,file_size
 def send_file(socket, filename):
 	with open(filename, mode="rb") as file:
@@ -122,7 +122,7 @@ def existingfile(filename):
 	return FileExistsError("Cannot create file as file already exists")
 def put_send(socket,filename):
 	file,file_size=open_file(filename)
-	header="put"+"\0"+"filename"+"\0"+"file_size" #+"\0"
+	header="put"+"\0"+filename+"\0"+file_size #+"\0"
 	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(header))

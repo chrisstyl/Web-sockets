@@ -1,6 +1,7 @@
 import socket
 import sys
-from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,put_send,get_header_size,send_header_size,open_file,recv_get
+from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,\
+					put_send,get_header_size,send_header_size,open_file,recv_get
 
 # Create the socket with which we will connect to the server
 cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,14 +56,15 @@ try:
 		# if len(svr_commands)==4:
 		command = sys.argv[3]
 		if len(sys.argv[4])!=0:
+			filename=str(sys.argv[4])
 			if command == 'put':
 				# Upload file to server
-				filename = str(sys.argv[4])
+				# filename = str(sys.argv[4])
 				put_send(cli_sock,filename)
 				
 			elif command == 'get':
 				# Get file from server
-				filename =str(sys.argv[4])
+				# filename =str(sys.argv[4])
 				recv_get(filename,cli_sock)
 
 		elif command=='list':
