@@ -88,7 +88,8 @@ def keyboard_to_socket(socket):
 
 
 def recv_all(socket,size):
-	msg=0
+	msg=b''
+	size=int(size)
 	while 0<size:
 		if size>4096:
 			size-=4096
@@ -96,17 +97,18 @@ def recv_all(socket,size):
 		else:
 			msg+=socket.recv(size)
 			size=0
-	return size
+	return msg
 
 def get_header_size(header):
-	header_size=len(bytes(header))
+	header_size=len(bytes(header,"utf-8"))
 	return header_size
 
 def send_header_size(socket,header_size):
-	return socket.sendall(bytes(header_size,"utf-8"))
+	return socket.sendall(bytes(str(header_size),"utf-8"))
 
 def recv_header_size(socket):
-	header_size=int(socket.recv(24),2)
+	incoming=socket.recv(24)
+	header_size=int(incoming.decode())
 	return header_size
 # def send_header(command,filename,size):
 # 	header=str(request)+"\0"+str(filename)+"\0"+str(size)
@@ -122,10 +124,12 @@ def existingfile(filename):
 	return FileExistsError("Cannot create file as file already exists")
 def put_send(socket,filename):
 	file,file_size=open_file(filename)
-	header="put"+"\0"+filename+"\0"+file_size #+"\0"
+	header=f"put\0{filename}\0{file_size}"#+"\0"
 	header_size=get_header_size(header)
+	print(header,bytes(header,"utf-8"),header_size)
+	import pdb; pdb.set_trace()
 	print("Errors while sending header size:",send_header_size(socket,header_size))
-	print("Errors while sending header:",socket.sendall(header))
+	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	print("Errors while sending file:",socket.sendall(file))
 
 def recv_start(socket):
@@ -141,9 +145,14 @@ def recv_start(socket):
 		IsExit=True
 		return IsExit
 	header=header.split("\0")
-	if header[0] in commandsdict:
-		print(f"{header[0]} command was requested")
-		return commandsdict[header[0]](header[1],header[2],socket)
+	command = header[0]
+	print(f"{command} command was requested")
+	if command=="put":
+		return recv_put(header[1],header[2],socket)
+	elif command=="get":
+		return send_get(header[1],header[2],socket)
+	elif command=="list":
+		return send_listing(socket)
 	else: return SyntaxError("No such command found")
 
 def recv_put(filename,file_size,socket):
@@ -169,7 +178,7 @@ def recv_get(filename,socket):
 
 
 
-def send_listing(filename,file_size,socket):
+def send_listing(socket):
 	listing=os.listdir(os.path.abspath("server.py"))
 	listing_bin=listing.encode('utf-8')
 	listing_size=len(listing_bin)
