@@ -1,6 +1,6 @@
 import socket
 import sys
-from lab3 import socket_to_screen, keyboard_to_socket, send_file, recv_file
+from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,put_send,get_header_size,send_header_size,open_file,recv_header_size,recv_get #TODO ,socket_to_screen
 
 # Create the socket with which we will connect to the server
 cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -66,6 +66,7 @@ try:
 						recv_get(filename,cli_sock)
 
 				elif command=='list':
+					#Recieve the listing
 					try :
 						recv_listing(socket)
 						 
