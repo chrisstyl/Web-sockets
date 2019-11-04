@@ -1,12 +1,7 @@
 import socket
 import sys
 def send_get(filename,file_size,socket):
-from lab3 import( socket_to_screen,keyboard_to_socket,
- recv_all,existingfile,
- recv_header_size,get_header_size,
- send_header_size,open_file,recv_header_size
- ,send_listing,recv_put,send_get,
- recv_start,existingfile)
+from lab3 import keyboard_to_socket, recv_all,existingfile, recv_header_size,get_header_size, send_header_size,open_file, ,send_listing,recv_put,send_get, recv_start #socket_to_screen,
 
 # Create the socket on which the server will receive new connections
 srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -78,18 +73,18 @@ while True:
 			# 	break
 			#TODO If  header
 
-			if is_header_size:
-				header = get_header(cli_sock, cli_addr)
-				if header == 0:
-					print("Client closed connection.")
-					break
-				else:
-					request,dataname, file_size = header.split('\0')
-			# Else receive data
-			recv_file(cli_sock, dataname)
-			# Check if receive file size == expected size else error
+			 recv_start(srv_sock)
+			# 	header = get_header(cli_sock, cli_addr)
+			# 	if header == 0:
+			# 		print("Client closed connection.")
+			# 		break
+			# 	else:if
+			# 		request,dataname, file_size = header.split('\0')
+			# # Else receive data
+			# recv_file(cli_sock, dataname)
+			# # Check if receive file size == expected size else error
 
-			# Then, read data from user and send to client
+			# # Then, read data from user and send to client
 			bytes_sent = keyboard_to_socket(cli_sock)
 			if bytes_sent == 0:
 				print("User-requested exit.")

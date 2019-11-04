@@ -162,7 +162,7 @@ def recv_get(filename,socket):
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
 			f.write(file)
-			print(f"{filename} has been downloaded(filesize={file_size}")
+			return (f"{filename} has been downloaded(filesize={file_size}")
 
 
 
