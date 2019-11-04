@@ -82,13 +82,9 @@ def keyboard_to_socket(socket):
 	print("  You: ", end="", flush=True) # Use end="" to avoid adding a newline after the prompt, flush=True to force-print the prompt
 
 	# Read a full line from the keyboard. The returned string will include the terminating newline character.
-	user_input = sys.stdin.readline()
-	if user_input == "EXIT\n": # The user requested that the communication is terminated.
-		return 0
-
+	
 	# Send the whole line through the socket; remember, TCP provides no guarantee that it will be delivered in one go.
-	bytes_sent = str.encode(user_input)
-	return bytes_sent
+	return 1
 
 
 def recv_all(socket,size):

@@ -1,13 +1,13 @@
 import socket
 import sys
-from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,put_send,get_header_size,send_header_size,open_file,recv_header_size,recv_get #TODO ,socket_to_screen
+from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,put_send,get_header_size,send_header_size,open_file,recv_get
 
 # Create the socket with which we will connect to the server
 cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # The server's address is a tuple, comprising the server's IP address or hostname, and port number
 srv_addr = (sys.argv[1], int(sys.argv[2])) # sys.argv[x] is the x'th argument on the command line
-
+svr_commands=(sys.argv[1], int(sys.argv[2]),sys.argv[3])
 # Convert to string, to be used shortly
 srv_addr_str = str(srv_addr)
 
@@ -47,35 +47,35 @@ try:
 	# Loop until either the server closes the connection or the user requests termination
 	while True:
 		# First, read data from keyboard and send to server
-		bytes_sent = keyboard_to_socket(cli_sock)
-		if bytes_sent == 0:
-			print("User-requested exit.")
-			break
-		else:
-			try:
-				command = sys.argv[3]
-				if len(sys.argv[4])!=0:
-					if command == 'put':
-						# Upload file to server
-						filename = sys.argv[4]
-						put_send(filename,cli_sock)
-						
-					elif command == 'get':
-						# Get file from server
-						filename = sys.argv[4]
-						recv_get(filename,cli_sock)
+		# bytes_sent = keyboard_to_socket(cli_sock)
+		# if bytes_sent == 0:
+		# 	print("User-requested exit.")
+		# 	break
+		# else:
+		# if len(svr_commands)==4:
+		command = sys.argv[3]
+		if len(sys.argv[4])!=0:
+			if command == 'put':
+				# Upload file to server
+				filename = str(sys.argv[4])
+				put_send(cli_sock,filename)
+				
+			elif command == 'get':
+				# Get file from server
+				filename =str(sys.argv[4])
+				recv_get(filename,cli_sock)
 
-				elif command=='list':
-					#Recieve the listing
-					try :
-						recv_listing(socket)
-						 
-					except Exception as e:
-						print(f"Cannot send listing due to {e} ")
-				else:
-					raise ValueError("No such command found")
-			except (len(sys.argv) not in [3,4]):
-				raise TypeError("This program either takes 4 or 5 arguments depending on the function needed,please input valid arguments")
+		elif command=='list':
+			#Recieve the listing
+			try :
+				recv_listing(socket)
+					
+			except Exception as e:
+				print(f"Cannot send listing due to {e} ")
+		else:
+			raise ValueError("No such command found")
+		# else:
+		# 	raise TypeError("This program either takes 4 or 5 arguments depending on the function needed,please input valid arguments")
 
 
 		# Then, read data from server and print on screen
