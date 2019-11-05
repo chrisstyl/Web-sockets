@@ -35,7 +35,7 @@ def socket_to_screen(socket, sock_addr):
 		 this in a loop; there is no guarantee that the line sent by the other side
 		 will be delivered in one recv() call.
 		"""
-		data = socket.recv(4096)
+		data = socket.recv(2048)
 
 		print(data.decode(), end="") # Use end="" to avoid adding a newline per print() call
 		bytes_read += len(data)
@@ -55,16 +55,21 @@ def keyboard_to_socket(socket):
 
 
 def recv_all(socket,size):
-	msg=b''
+	msg=[]
+	iterator=0
 	size=int(size)
 	while 0<size:
-		if size>4096:
-			size-=4096
-			msg+=socket.recv(4096)
+		if iterator%1000==0:
+			print(iterator)
+		if size>2048:
+			size-=2048
+			msg.append(socket.recv(2048))
+			iterator+=1
 		else:
-			msg+=socket.recv(size)
+			msg.append(socket.recv(size))
 			size=0
-	return msg
+	newmsg="".join(msg).encode()
+	return newmsg
 
 def get_header_size(header):
 	header_size=len(bytes(header,"utf-8"))
@@ -98,7 +103,7 @@ def put_send(socket,filename):
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	print("Errors while sending file:",socket.sendall(file))
-	return("upload finished")
+	return f"upload finished"
 
 def recv_start(socket):
 	header_size=recv_header_size(socket)
@@ -150,7 +155,7 @@ def recv_get(filename,socket):
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
 			f.write(file)
-			return (f"{filename} has been downloaded(filesize={file_size}")
+			print(f"{filename} has been downloaded(filesize={file_size}")
 	
 
 
@@ -158,7 +163,7 @@ def recv_get(filename,socket):
 def send_listing(socket):
 	print("HERE")
 	listing=os.listdir(os.path.abspath("lab3-server.py")[:-len("lab3-server.py")])
-	print("ERROR")
+	print(listing)
 	listing_bin=str(listing).encode('utf-8')
 	listing_size=len(listing_bin)
 	socket.sendall(bytes(str(listing_size),"utf-8"))
