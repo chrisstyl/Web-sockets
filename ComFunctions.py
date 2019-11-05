@@ -35,7 +35,7 @@ def socket_to_screen(socket, sock_addr):
 		 this in a loop; there is no guarantee that the line sent by the other side
 		 will be delivered in one recv() call.
 		"""
-		data = socket.recv(4096)
+		data = socket.recv(2048)
 
 		print(data.decode(), end="") # Use end="" to avoid adding a newline per print() call
 		bytes_read += len(data)
@@ -56,20 +56,22 @@ def keyboard_to_socket(socket):
 
 def recv_all(socket,size):
 	msg=[]
+	msglist=[]
 	iterator=0
 	size=int(size)
 	while 0<size:
-		if iterator%1000==0:
-			print(iterator)
-		if size>4096:
-			size-=4096
-			msg.append(socket.recv(4096))
+		if size>2048:
+			if iterator%100==0:
+				print(iterator)
+			size-=2048
 			iterator+=1
+			msg.append(socket.recv(2048))
 		else:
 			msg.append(socket.recv(size))
 			size=0
-	newmsg="".join(msg).decode()
-	return newmsg
+	lambda msg: [i for sublist in msg for i in sublist]
+	msg=bytes(msg)
+	return msg
 
 def get_header_size(header):
 	header_size=len(bytes(header,"utf-8"))
