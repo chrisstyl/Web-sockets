@@ -7,40 +7,7 @@ def open_file(filename):
 		file_bytes = file.read()
 		file_size=os.stat(filename).st_size
 		return file_bytes,file_size
-def send_file(socket, filename):
-	with open(filename, mode="rb") as file:
-		file_bytes = file.read(4096)
-		while file_bytes:
-			socket.send(file_bytes)
-			file_bytes = file.read(4096)
 
-
-# def get_header(socket, sock_addr):
-# 	print(sock_addr + ": ", end="", flush=True) # Use end="" to avoid adding a newline after the communicating partner's info, flush=True to force-print the info
-
-# 	data = bytearray(1)
-
-# 	"""
-# 	 Loop for as long as data is received (0-length data means the connection was closed by
-# 	 the client), and newline is not in the data (newline means the complete input from the
-# 	 other side was processed, as the assumption is that the client will send one line at
-# 	 a time).
-# 	"""
-# 	header=str(request)+"\0"+str(filename)+"\0"+str(size)
-# 	header_size=len(bytes(header))
-# 	socket.sendall(header_size)
-# 	socket.sendall(bytes(header))
-# 	data = socket.recv(4096)
-# 	if len(data) > 0 and "\n" not in data.decode():
-# 		"""
-# 		 Read up to 4096 bytes at a time; remember, TCP will return as much as there is
-# 		 available to be delivered to the application, up to the user-defined maximum,
-# 		 so it could as well be only a handful of bytes. This is the reason why we do
-# 		 this in a loop; there is no guarantee that the line sent by the other side
-# 		 will be delivered in one recv() call.
-# 		"""
-# 		return data
-# 	else: return 0
 def socket_to_screen(socket, sock_addr):
 #
 	# Reads data from a passed socket and prints it on screen.
@@ -121,7 +88,7 @@ def existingfile(filename):
 	except FileNotFoundError:
 		print('File does not exist')
 		return False
-	return FileExistsError("Cannot create file as file already exists")
+	return FileExistsError("Cannot create file that already exists")
 def put_send(socket,filename):
 	file,file_size=open_file(filename)
 	header=f"put\0{filename}\0{file_size}"#+"\0"
@@ -160,8 +127,11 @@ def recv_put(filename,file_size,socket):
 			f.write(file)
 			print(f"{filename} has been uploaded(filesize={file_size})")
 			return "DONE"
+	else:
+		print(FileExistsError)
 
 def send_get(filename,file_size,socket):
+	#import pdb; pdb.set_trace()
 	file,file_size=open_file(filename)
 	header=bytes(str(file_size),"utf-8")
 	print("Errors while sending file:",socket.sendall(header))
@@ -181,6 +151,7 @@ def recv_get(filename,socket):
 		with open(filename,mode="xb") as f:
 			f.write(file)
 			return (f"{filename} has been downloaded(filesize={file_size}")
+	
 
 
 

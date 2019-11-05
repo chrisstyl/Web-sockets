@@ -1,6 +1,6 @@
 import socket
 import sys
-from lab3 import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,\
+from ComFunctions import  keyboard_to_socket, recv_all,existingfile,recv_listing,recv_header_size,\
 					put_send,get_header_size,send_header_size,open_file,recv_get
 
 # Create the socket with which we will connect to the server
