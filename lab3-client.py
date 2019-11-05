@@ -55,34 +55,33 @@ try:
 		# else:
 		# if len(svr_commands)==4:
 		command = sys.argv[3]
-		if len(sys.argv[4])!=0:
-			filename=str(sys.argv[4])
-			if command == 'put':
-				# Upload file to server
-				# filename = str(sys.argv[4])
-				put_send(cli_sock,filename)
-				
-			elif command == 'get':
-				# Get file from server
-				# filename =str(sys.argv[4])
-				recv_get(filename,cli_sock)
+		try:
+			if command=="list":
 
-		elif command=='list':
-			#Recieve the listing
-			try :
-				recv_listing(socket)
-					
-			except Exception as e:
-				print(f"Cannot send listing due to {e} ")
-		else:
-			raise ValueError("No such command found")
+				recv_listing(cli_sock)
+				break
+			elif len(sys.argv[4])!=0:
+				filename=str(sys.argv[4])
+				if command == 'put':
+					# Upload file to server
+					# filename = str(sys.argv[4])
+					put_send(cli_sock,filename)
+					break
+				elif command == 'get':
+					# Get file from server
+					# filename =str(sys.argv[4])
+					recv_get(filename,cli_sock)
+					break
+			else:
+				raise ValueError("No such command found")
+		except Exception as e:
+			print(e)
 		# else:
 		# 	raise TypeError("This program either takes 4 or 5 arguments depending on the function needed,please input valid arguments")
 
 
 		# Then, read data from server and print on screen
-		bytes_read = cli_sock.recv(4096)
-		if bytes_read == 0:
+		if cli_sock.recv(10) == 0:
 			print("Server closed connection.")
 			break
 

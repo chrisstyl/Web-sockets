@@ -131,6 +131,7 @@ def put_send(socket,filename):
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	print("Errors while sending file:",socket.sendall(file))
+	return("upload finished")
 
 def recv_start(socket):
 	header_size=recv_header_size(socket)
@@ -169,6 +170,7 @@ def send_get(filename,file_size,socket):
 	header=bytes(file_size,"utf-8")
 	print("Errors while sending file:",socket.sendall(header))
 	print("Errors while sending file:",socket.sendall(file))
+	return "DONE"
 
 def recv_get(filename,socket):
 	file_size=int(socket.recv(24),2)
@@ -181,15 +183,26 @@ def recv_get(filename,socket):
 
 
 def send_listing(socket):
-	listing=os.listdir(os.path.abspath("server.py"))
-	listing_bin=listing.encode('utf-8')
+	print("HERE")
+	listing=os.listdir(os.path.abspath("lab3-server.py")[:-len("lab3-server.py")])
+	print("ERROR")
+	listing_bin=str(listing).encode('utf-8')
 	listing_size=len(listing_bin)
-	socket.sendall(bytes(listing_size,"utf-8"))
-	return socket.sendall(listing_bin)
+	socket.sendall(bytes(str(listing_size),"utf-8"))
+	socket.sendall(listing_bin)
+	return "DONE"
+
 def recv_listing(socket):
-	listing_size=socket.recv(24)
-	listing=recv_all(socket,int(listing_size,2)).decode("utf-8")
-	return f"Server's listings are the following: \n {listing}"
+	header="list\0"#+"\0"
+	header_size=5
+	print("Errors while sending header size:",send_header_size(socket,header_size))
+	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
+	listing_size_byte=socket.recv(24)
+	print("listing size got")
+	listing_size=int(listing_size_byte.decode())
+	print(listing_size)
+	listing=recv_all(socket,listing_size)
+	print(f"Server's listings are the following: \n {listing}")
 
 
 	
