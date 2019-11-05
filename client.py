@@ -81,7 +81,9 @@ try:
 
 
 		# Then, read data from server and print on screen
-		if cli_sock.recv(10) == 0:
+		try:
+			cli_sock.recv(10)
+		except ConnectionAbortedError as e:
 			print("Server closed connection.")
 			break
 

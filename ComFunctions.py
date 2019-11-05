@@ -165,7 +165,7 @@ def recv_get(filename,socket):
 def send_listing(socket):
 	print("HERE")
 	listing=os.listdir(os.path.abspath("lab3-server.py")[:-len("lab3-server.py")])
-	print(listing)
+	print("listing",listing)
 	listing_bin=str(listing).encode('utf-8')
 	listing_size=len(listing_bin)
 	socket.sendall(bytes(str(listing_size),"utf-8"))
@@ -174,14 +174,16 @@ def send_listing(socket):
 
 def recv_listing(socket):
 	header="list\0"#+"\0"
-	header_size=5
+	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	listing_size_byte=socket.recv(24)
-	print("listing size got")
-	listing_size=int(listing_size_byte.decode())
+	print("listing size byte",listing_size_byte)
+	listing_size=(listing_size_byte.decode())
 	print(listing_size)
-	listing=recv_all(socket,listing_size)
+	size=int(listing_size)
+	listing=recv_all(socket,size)
+	listing=listing.decode()
 	print(f"Server's listings are the following: \n {listing}")
 
 

@@ -66,8 +66,14 @@ while True:
 		IsExit=False
 		# Loop until either the client closes the connection or the user requests termination
 		while IsExit==False:
-			if recv_start(cli_sock)=="DONE":
+			outcome=recv_start(cli_sock)
+			if outcome=="DONE":
 				break
+			elif outcome=="ERROREXIT":
+				print("Error occured ,exiting")
+				exit(1)	
+			else: 
+				print(outcome)
 			
 	finally:
 		"""
