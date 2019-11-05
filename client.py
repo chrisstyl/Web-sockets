@@ -32,7 +32,7 @@ try:
 	"""
 	cli_sock.connect(srv_addr)
 	
-	print("Connected. Now chatting...")
+	print("Connected. Now exchanging data...")
 except Exception as e:
 	# Print the exception message
 	print(e)
@@ -47,15 +47,8 @@ except Exception as e:
 try:
 	# Loop until either the server closes the connection or the user requests termination
 	while True:
-		# First, read data from keyboard and send to server
-		# bytes_sent = keyboard_to_socket(cli_sock)
-		# if bytes_sent == 0:
-		# 	print("User-requested exit.")
-		# 	break
-		# else:
-		# if len(svr_commands)==4:
 		command = sys.argv[3]
-		try:
+		try:#calling respecive function
 			if command=="list":
 
 				recv_listing(cli_sock)
@@ -64,12 +57,10 @@ try:
 				filename=str(sys.argv[4])
 				if command == 'put':
 					# Upload file to server
-					# filename = str(sys.argv[4])
 					put_send(cli_sock,filename)
 					break
 				elif command == 'get':
 					# Get file from server
-					# filename =str(sys.argv[4])
 					recv_get(filename,cli_sock)
 					break
 			else:

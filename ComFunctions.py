@@ -2,7 +2,7 @@ import sys
 import socket
 import os
 import time
-def open_file(filename):
+def open_file(filename): #opens a file in read binary and reurns it along with its size
 	with open(filename, mode="rb") as file:
 		file_bytes = file.read()
 		file_size=os.stat(filename).st_size
@@ -54,49 +54,42 @@ def keyboard_to_socket(socket):
 	return 1
 
 
-def recv_all(socket,size):
-	msg=[]
-	msglist=[]
-	iterator=0
+def recv_all(socket,size): #made a function that keeps recieving until it recieves {size} bytes
+	msg=[] #used a list because its about 50 times faster
 	size=int(size)
 	while 0<size:
 		if size>2048:
-			if iterator%100==0:
-				print(iterator)
 			size-=2048
-			iterator+=1
 			msg.append(socket.recv(2048))
 		else:
 			msg.append(socket.recv(size))
 			size=0
-	lambda msg: [i for sublist in msg for i in sublist]
-	msg=bytes(msg)
+	lambda msg: [i for nestlist in msg for i in nestlist]#this function was used to remove nested lists,creating a bytearray
+	msg=bytes(msg) #turn it back to bytes
 	return msg
 
-def get_header_size(header):
+def get_header_size(header): #takes header,returns its size
 	header_size=len(bytes(header,"utf-8"))
 	return header_size
 
-def send_header_size(socket,header_size):
+def send_header_size(socket,header_size):# sends the headers size
 	return socket.sendall(bytes(str(header_size),"utf-8"))
 
-def recv_header_size(socket):
+def recv_header_size(socket):#recieves the header's size
 	incoming=socket.recv(24)
 	header_size=int(incoming.decode())
 	return header_size
-# def send_header(command,filename,size):
-# 	header=str(request)+"\0"+str(filename)+"\0"+str(size)
-# 	get_header_size(header)
-# 	socket.
-def existingfile(filename):
+
+def existingfile(filename):#checks if file already exists by opening it and checking if errors appear
 	try:
 		f = open(filename)
 		f.close()
 	except FileNotFoundError:
 		print('File does not exist')
 		return False
-	return FileExistsError("Cannot create file that already exists")
-def put_send(socket,filename):
+	raise( FileExistsError("Cannot create file that already exists"))
+
+def put_send(socket,filename): #Put function,writes files,sends "put" keyword with the filename and size,and finally the file from client to server
 	file,file_size=open_file(filename)
 	header=f"put\0{filename}\0{file_size}"#+"\0"
 	header_size=get_header_size(header)
@@ -107,7 +100,7 @@ def put_send(socket,filename):
 	print("Errors while sending file:",socket.sendall(file))
 	return f"upload finished"
 
-def recv_start(socket):
+def recv_start(socket): #takes the header from the client that was sent,splits it,takes the keyword and does the corresponding fuction call
 	header_size=recv_header_size(socket)
 	print("Reciever header's size")
 	header=socket.recv(header_size).decode("utf-8")
@@ -125,9 +118,11 @@ def recv_start(socket):
 		return send_get(header[1],header[2],socket)
 	elif command=="list":
 		return send_listing(socket)
-	else: return SyntaxError("No such command found")
+	else:
+		 raise SyntaxError("No such command found")
+		 return "ERROREXIT"
 
-def recv_put(filename,file_size,socket):
+def recv_put(filename,file_size,socket): # recieves the file of the put fuctions and uploads it on the server
 	file=recv_all(socket,file_size)
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
@@ -135,9 +130,9 @@ def recv_put(filename,file_size,socket):
 			print(f"{filename} has been uploaded(filesize={file_size})")
 			return "DONE"
 	else:
-		print(FileExistsError)
+		return (FileExistsError)
 
-def send_get(filename,file_size,socket):
+def send_get(filename,file_size,socket):#sends the file from server to client
 	#import pdb; pdb.set_trace()
 	file,file_size=open_file(filename)
 	header=bytes(str(file_size),"utf-8")
@@ -145,7 +140,7 @@ def send_get(filename,file_size,socket):
 	print("Errors while sending file:",socket.sendall(file))
 	return "DONE"
 
-def recv_get(filename,socket):
+def recv_get(filename,socket):#recieves the file from server and downloads it to client dir
 	header=f"get\0{filename}\0"#+"\0"
 	header_size=get_header_size(header)
 	print(header,bytes(header,"utf-8"),header_size)
@@ -162,7 +157,7 @@ def recv_get(filename,socket):
 
 
 
-def send_listing(socket):
+def send_listing(socket):# send's server's listing from server to client
 	print("HERE")
 	listing=os.listdir(os.path.abspath("lab3-server.py")[:-len("lab3-server.py")])
 	print("listing",listing)
@@ -172,7 +167,7 @@ def send_listing(socket):
 	socket.sendall(listing_bin)
 	return "DONE"
 
-def recv_listing(socket):
+def recv_listing(socket):# recieves listing and prints it on screen
 	header="list\0"#+"\0"
 	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(socket,header_size))
