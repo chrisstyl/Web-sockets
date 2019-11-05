@@ -154,26 +154,28 @@ def recv_start(socket):
 	else: return SyntaxError("No such command found")
 
 def recv_put(filename,file_size,socket):
-	start = time.time()
-	print("hello")
 	file=recv_all(socket,file_size)
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
 			f.write(file)
 			print(f"{filename} has been uploaded(filesize={file_size})")
-			end = time.time()
-			print(end - start)
 			return "DONE"
 
 def send_get(filename,file_size,socket):
 	file,file_size=open_file(filename)
-	header=bytes(file_size,"utf-8")
+	header=bytes(str(file_size),"utf-8")
 	print("Errors while sending file:",socket.sendall(header))
 	print("Errors while sending file:",socket.sendall(file))
 	return "DONE"
 
 def recv_get(filename,socket):
-	file_size=int(socket.recv(24),2)
+	header=f"get\0{filename}\0"#+"\0"
+	header_size=get_header_size(header)
+	print(header,bytes(header,"utf-8"),header_size)
+	#import pdb; pdb.set_trace()
+	print("Errors while sending header size:",send_header_size(socket,header_size))
+	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
+	file_size=int(socket.recv(24).decode())
 	file=recv_all(socket,file_size)
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
