@@ -61,8 +61,8 @@ while True:
 		cli_sock, cli_addr = srv_sock.accept()
 		cli_addr_str = str(cli_addr) # Translate the client address to a string (to be used shortly)
 
-		print("Client " + cli_addr_str + " connected. Now exchanging data through port:", int(sys.argv[1])
-		filename = ''
+		print("Client " + cli_addr_str + " connected. Now exchanging data through port:", int(sys.argv[1]))
+
 		IsExit=False
 		# Loop until either the client closes the connection or the user requests termination
 		while IsExit==False:

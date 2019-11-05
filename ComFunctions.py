@@ -2,9 +2,9 @@ import sys
 import socket
 import os
 import time
-def open_file(filename): #opens a file in read binary and reurns it along with its size
-	with open(filename, mode="rb") as file:
-		file_bytes = file.read()
+def open_file(filename): #opens a files in read binary and reurns it along with its size
+	with open(filename, mode="rb") as files:
+		file_bytes = files.read()
 		file_size=os.stat(filename).st_size
 		return file_bytes,file_size
 
@@ -53,7 +53,6 @@ def keyboard_to_socket(socket):
 	# Send the whole line through the socket; remember, TCP provides no guarantee that it will be delivered in one go.
 	return 1
 
-
 def recv_all(socket,size): #made a function that keeps recieving until it recieves {size} bytes
 	msg=[] #used a list because its about 50 times faster
 	size=int(size)
@@ -64,9 +63,8 @@ def recv_all(socket,size): #made a function that keeps recieving until it reciev
 		else:
 			msg.append(socket.recv(size))
 			size=0
-	lambda msg: [i for nestlist in msg for i in nestlist]#this function was used to remove nested lists,creating a bytearray
-	msg=bytes(msg) #turn it back to bytes
-	return msg
+	#this function was used to remove nested lists,creating a bytearray
+	return bytes([i for nestlist in msg for i in nestlist])
 
 def get_header_size(header): #takes header,returns its size
 	header_size=len(bytes(header,"utf-8"))
@@ -80,24 +78,23 @@ def recv_header_size(socket):#recieves the header's size
 	header_size=int(incoming.decode())
 	return header_size
 
-def existingfile(filename):#checks if file already exists by opening it and checking if errors appear
+def existingfile(filename):#checks if files already exists by opening it and checking if errors appear
 	try:
 		f = open(filename)
 		f.close()
 	except FileNotFoundError:
-		print('File does not exist')
+		print('files does not exist')
 		return False
-	raise( FileExistsError("Cannot create file that already exists"))
+	raise( FileExistsError("Cannot create files that already exists"))
 
-def put_send(socket,filename): #Put function,writes files,sends "put" keyword with the filename and size,and finally the file from client to server
-	file,file_size=open_file(filename)
+def put_send(socket,filename): #Put function,writes files,sends "put" keyword with the filename and size,and finally the files from client to server
+	files,file_size=open_file(filename)
 	header=f"put\0{filename}\0{file_size}"#+"\0"
 	header_size=get_header_size(header)
 	print(header,bytes(header,"utf-8"),header_size)
-	#import pdb; pdb.set_trace()
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
-	print("Errors while sending file:",socket.sendall(file))
+	print("Errors while sending files:",socket.sendall(files))
 	return f"upload finished"
 
 def recv_start(socket): #takes the header from the client that was sent,splits it,takes the keyword and does the corresponding fuction call
@@ -122,36 +119,34 @@ def recv_start(socket): #takes the header from the client that was sent,splits i
 		 raise SyntaxError("No such command found")
 		 return "ERROREXIT"
 
-def recv_put(filename,file_size,socket): # recieves the file of the put fuctions and uploads it on the server
-	file=recv_all(socket,file_size)
+def recv_put(filename,file_size,socket): # recieves the files of the put fuctions and uploads it on the server
+	files=recv_all(socket,file_size)
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
-			f.write(file)
+			f.write(files)
 			print(f"{filename} has been uploaded(filesize={file_size})")
 			return "DONE"
 	else:
 		return (FileExistsError)
 
-def send_get(filename,file_size,socket):#sends the file from server to client
-	#import pdb; pdb.set_trace()
-	file,file_size=open_file(filename)
+def send_get(filename,file_size,socket):#sends the files from server to client
+	files,file_size=open_file(filename)
 	header=bytes(str(file_size),"utf-8")
-	print("Errors while sending file:",socket.sendall(header))
-	print("Errors while sending file:",socket.sendall(file))
+	print("Errors while sending files:",socket.sendall(header))
+	print("Errors while sending files:",socket.sendall(files))
 	return "DONE"
 
-def recv_get(filename,socket):#recieves the file from server and downloads it to client dir
+def recv_get(filename,socket):#recieves the files from server and downloads it to client dir
 	header=f"get\0{filename}\0"#+"\0"
 	header_size=get_header_size(header)
 	print(header,bytes(header,"utf-8"),header_size)
-	#import pdb; pdb.set_trace()
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	file_size=int(socket.recv(24).decode())
-	file=recv_all(socket,file_size)
+	files=recv_all(socket,file_size)
 	if existingfile(filename)==False:
 		with open(filename,mode="xb") as f:
-			f.write(file)
+			f.write(files)
 			print(f"{filename} has been downloaded(filesize={file_size}")
 	
 
@@ -161,6 +156,7 @@ def send_listing(socket):# send's server's listing from server to client
 	print("HERE")
 	listing=os.listdir(os.path.abspath("lab3-server.py")[:-len("lab3-server.py")])
 	print("listing",listing)
+	import pdb; pdb.set_trace()
 	listing_bin=str(listing).encode('utf-8')
 	listing_size=len(listing_bin)
 	socket.sendall(bytes(str(listing_size),"utf-8"))
@@ -168,16 +164,17 @@ def send_listing(socket):# send's server's listing from server to client
 	return "DONE"
 
 def recv_listing(socket):# recieves listing and prints it on screen
-	header="list\0"#+"\0"
+	header="list\0"
 	header_size=get_header_size(header)
 	print("Errors while sending header size:",send_header_size(socket,header_size))
 	print("Errors while sending header:",socket.sendall(bytes(header,"utf-8")))
 	listing_size_byte=socket.recv(24)
 	print("listing size byte",listing_size_byte)
-	listing_size=(listing_size_byte.decode())
+	listing_size=listing_size_byte.decode()
 	print(listing_size)
 	size=int(listing_size)
 	listing=recv_all(socket,size)
+	import pdb; pdb.set_trace()
 	listing=listing.decode()
 	print(f"Server's listings are the following: \n {listing}")
 
