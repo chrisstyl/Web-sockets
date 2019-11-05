@@ -66,7 +66,9 @@ while True:
 		IsExit=False
 		# Loop until either the client closes the connection or the user requests termination
 		while IsExit==False:
-			 recv_start(cli_sock)
+			if recv_start(cli_sock)=="DONE":
+				break
+			
 	finally:
 		"""
 		 If an error occurs or the client closes the connection, call close() on the
